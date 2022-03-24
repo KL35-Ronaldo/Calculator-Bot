@@ -68,6 +68,8 @@ CALCULATE_BUTTONS = InlineKeyboardMarkup(
 @Bot.on_message(filters.command(["start"]))
 async def start(c: Client, m: Message):
     cmd = len(m.command)
+    for cm in m.command:
+        print(cm)
     if cmd != 0:
         if m.command[1] == "calculate":
             await m.reply(CALCULATE_TEXT, True, reply_markup=CALCULATE_BUTTONS)
