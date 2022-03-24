@@ -60,6 +60,18 @@ CALCULATE_BUTTONS = InlineKeyboardMarkup(
             InlineKeyboardButton("0", callback_data="0"),
             InlineKeyboardButton("=", callback_data="="),
             InlineKeyboardButton("+", callback_data="+"),
+        ],
+        [
+            InlineKeyboardButton("√", callback_data="sqrt"),
+            InlineKeyboardButton("^", callback_data="**")
+        ]
+    ]
+)
+
+CALC_BTN = InlineKeyboardMarkup(
+    [
+        [
+            InlineKeyboardButton("🔢 Calculate 🔢")
         ]
     ]
 )
@@ -81,12 +93,16 @@ async def cb_data(c: Client, q: CallbackQuery):
     m, d = q.message, q.data
     try:
         t = m.text.strip()
-        if d == "=":
+        if d == "calculate":
+            await m.edit("#", reply_markup=CALCULATE_BUTTONS)
+        elif d == "=":
             text = float(eval(t))
         elif d == "DEL":
             text = t[:-1] if not len(t) == 1 else "#"
         elif d == "AC":
             text = "#"
+        elif d == "sqrt":
+            text = f"sqrt()"
         else:
             text = str(t + d) if t[0] != "#" else d
         await m.edit(f"{text}", reply_markup=CALCULATE_BUTTONS)
@@ -94,6 +110,7 @@ async def cb_data(c: Client, q: CallbackQuery):
         if "you tried to edit it using the same content" in exc():
             await q.answer()
         else:
+            await m.edit(f"Sorry Something Went Wrong..!\n\n\n`{exc()}`\n\n\nPlease Try Again.")
             print(exc())
 
 @Bot.on_inline_query()
