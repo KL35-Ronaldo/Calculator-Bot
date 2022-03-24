@@ -74,7 +74,7 @@ async def start(c: Client, m: Message):
 
 @Bot.on_message(filters.private & filters.command(["calc", "calculate", "calculator"]))
 async def calculate(c: Client, m: Message):
-    await m.reply("0", True, reply_markup=CALCULATE_BUTTONS)
+    await m.reply("🔢", True, reply_markup=CALCULATE_BUTTONS)
 
 @Bot.on_callback_query()
 async def cb_data(c: Client, q: CallbackQuery):
@@ -86,9 +86,9 @@ async def cb_data(c: Client, q: CallbackQuery):
         elif d == "DEL":
             text = t[:-1] if not len(t) == 1 else t
         elif d == "AC":
-            text = "0"
+            text = "🔢"
         else:
-            text = str(t + d) if t[0] != 0 else d
+            text = str(t + d) if t[0] != "🔢" else d
         await m.edit(f"{text}", reply_markup=CALCULATE_BUTTONS)
     except:
         if "you tried to edit it using the same content" in exc():
