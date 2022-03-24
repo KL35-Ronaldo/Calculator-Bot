@@ -1,28 +1,34 @@
-import os
-from pyrogram import Client, filters
+from os import getenv
 from pyrogram.types import *
+from pyrogram import Client, filters
+from traceback import format_exc as exc
 
 
 Bot = Client(
-    "Calculator Bot",
-    bot_token = os.environ["BOT_TOKEN"],
-    api_id = int(os.environ["API_ID"]),
-    api_hash = os.environ["API_HASH"]
+    session_name=getenv("SESSION_NAME", "Calculator Bot"),
+    api_id=int(getenv("API_ID", "0")),
+    api_hash=getenv("API_HASH", ""),
+    bot_token = getenv("BOT_TOKEN", ""),
+    sleep_threshold=int(getenv("SLEEP_THRESHOLD", "5"))
 )
 
 
-START_TEXT = """Hello {},
-I am a simple calculator telegram bot. Send me /calculator.
+START_TEXT = """Hai **__{}__** 👋,
 
-Made by @FayasNoushad"""
+__I'm a Simple and Powerful Telegram **--Calculator--** Bot. Send **--/calculator--** to Start Calculating.__
+
+__Made by **--@KL35Ronaldo--**__"""
+
 START_BUTTONS = InlineKeyboardMarkup(
     [
         [
-            InlineKeyboardButton('⚙ Join Updates Channel ⚙', url='https://telegram.me/FayasNoushad')
+            InlineKeyboardButton('😎 Master 😎', user_id=1790509785)
         ]
     ]
 )
-CALCULATE_TEXT = "Made by @FayasNoushad"
+
+CALCULATE_TEXT = "__Made by --**@KL35Ronaldo**--__"
+
 CALCULATE_BUTTONS = InlineKeyboardMarkup(
     [
         [
@@ -60,85 +66,82 @@ CALCULATE_BUTTONS = InlineKeyboardMarkup(
 
 
 @Bot.on_message(filters.command(["start"]))
-async def start(bot, update):
-    text = START_TEXT.format(update.from_user.mention)
-    reply_markup = START_BUTTONS
-    await update.reply_text(
-        text=text,
-        disable_web_page_preview=True,
-        reply_markup=reply_markup,
-        quote=True
-    )
-
+async def start(c: Client, m: Message):
+    if m.command[1] == "calculate":
+        await m.reply(CALCULATE_TEXT, True, reply_markup=CALCULATE_BUTTONS)
+        return
+    await m.reply(START_TEXT.format(m.from_user.mention), True, reply_markup=START_BUTTONS)
 
 @Bot.on_message(filters.private & filters.command(["calc", "calculate", "calculator"]))
-async def calculate(bot, update):
-    await update.reply_text(
-        text=CALCULATE_TEXT,
-        reply_markup=CALCULATE_BUTTONS,
-        disable_web_page_preview=True,
-        quote=True
-    )
-
+async def calculate(c: Client, m: Message):
+    await m.reply(CALCULATE_TEXT, True, reply_markup=CALCULATE_BUTTONS)
 
 @Bot.on_callback_query()
-async def cb_data(bot, update):
-        data = update.data
-        try:
-            message_text = update.message.text.split("\n")[0].strip().split("=")[0].strip()
-            message_text = '' if CALCULATE_TEXT in message_text else message_text
-            if data == "=":
-                text = float(eval(message_text))
-            elif data == "DEL":
-                text = message_text[:-1]
-            elif data == "AC":
-                text = ""
-            else:
-                text = message_text + data
-            await update.message.edit_text(
-                text=f"{text}\n\n{CALCULATE_TEXT}",
-                disable_web_page_preview=True,
-                reply_markup=CALCULATE_BUTTONS
-            )
-        except Exception as error:
-            print(error)
-
+async def cb_data(c: Client, q: CallbackQuery):
+    m, d = q.message, q.data
+    try:
+        t = m.text.split("\n")[0].strip().split("=")[0].strip()
+        t = '' if CALCULATE_TEXT in t else t
+        if d == "=":
+            text = float(eval(t))
+        elif d == "DEL":
+            text = t[:-1]
+        elif d == "AC":
+            text = ""
+        else:
+            text = t + d
+        await m.edit(f"{text}\n\n{CALCULATE_TEXT}", reply_markup=CALCULATE_BUTTONS)
+    except:
+        print(exc())
 
 @Bot.on_inline_query()
-async def inline(bot, update):
-    if len(update.data) == 0:
+async def inline(c: Client, q: InlineQuery):
+    d = q.query
+    if len(d) == 0:
         try:
             answers = [
                 InlineQueryResultArticle(
-                    title="Calculator",
-                    description=f"New calculator",
-                    input_message_content=InputTextMessageContent(
-                        text=CALCULATE_TEXT,
-                        disable_web_page_preview=True
-                    ),
-                    reply_markup=CALCULATE_BUTTONS
-                )
-            ]
-        except Exception as error:
-            print(error)
-    else:
-        try:
-            message_text = update.message.text.split("\n")[0].strip().split("=")[0].strip()
-            data = message_text.replace("×", "*").replace("÷", "/")
-            text = float(eval(data))
-            answers = [
-                InlineQueryResultArticle(
-                    title="Answer",
-                    description=f"Results of your input",
-                    input_message_content=InputTextMessageContent(
-                        text=f"{data} = {text}",
-                        disable_web_page_preview=True
-                    )
+                    "Calculator",
+                    InputTextMessageContent(CALCULATE_TEXT),
+                    None,
+                    CALCULATE_BUTTONS,
+                    None,
+                    "A Simple Calculator Made By Ronaldo Fan.",
+                    "https://telegra.ph/file/3ed71fa60172e09e96794.jpg"
                 )
             ]
         except:
-            pass
-    await update.answer(answers)
+            print(exc())
+    else:
+        try:
+            t = d.strip().split("=")[0].strip() if "=" in d else d.strip()
+            dd = t.replace("×", "*").replace("x", "*").replace("X", "*").replace("÷", "/")
+            t = float(eval(dd))
+            answers = [
+                InlineQueryResultArticle(
+                    "Results",
+                    InputTextMessageContent(f"{dd} = {t}"),
+                    None,
+                    None,
+                    None,
+                    "A Simple Calculator Made By Ronaldo Fan.",
+                    "https://telegra.ph/file/3ed71fa60172e09e96794.jpg"
+                )
+            ]
+        except:
+            print(exc())
+            answers = [
+                InlineQueryResultArticle(
+                    "Error",
+                    InputTextMessageContent(f"Sorry Something Went Wrong..!\n\n\n`{exc()}`\n\n\nPlease Try Again."),
+                    None,
+                    None,
+                    None,
+                    "A Simple Calculator Made By Ronaldo Fan.",
+                    "https://telegra.ph/file/3ed71fa60172e09e96794.jpg"
+                )
+            ]
+    await q.answer(answers, 300, False, False, "", "🔥 A Simple Calculator Made By Ronaldo Fan. 🔥", "calculate")
 
 
 Bot.run()
