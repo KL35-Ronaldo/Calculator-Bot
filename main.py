@@ -80,8 +80,7 @@ async def calculate(c: Client, m: Message):
 async def cb_data(c: Client, q: CallbackQuery):
     m, d = q.message, q.data
     try:
-        t = m.text.split("\n")[0].strip().split("=")[0].strip()
-        t = '' if CALCULATE_TEXT in t else t
+        t = m.text.replace(CALCULATE_TEXT, "").strip() if CALCULATE_TEXT else m.text.strip()
         if d == "=":
             text = float(eval(t))
         elif d == "DEL":
