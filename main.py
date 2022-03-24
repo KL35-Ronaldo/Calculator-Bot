@@ -74,22 +74,22 @@ async def start(c: Client, m: Message):
 
 @Bot.on_message(filters.private & filters.command(["calc", "calculate", "calculator"]))
 async def calculate(c: Client, m: Message):
-    await m.reply(CALCULATE_TEXT, True, reply_markup=CALCULATE_BUTTONS)
+    await m.reply("0", True, reply_markup=CALCULATE_BUTTONS)
 
 @Bot.on_callback_query()
 async def cb_data(c: Client, q: CallbackQuery):
     m, d = q.message, q.data
     try:
-        t = m.text.replace(CALCULATE_TEXT, "").strip() if CALCULATE_TEXT else m.text.strip()
+        t = m.text.strip()
         if d == "=":
             text = float(eval(t))
         elif d == "DEL":
-            text = t[:-1]
+            text = t[:-1] if not len(t) == 1 else t
         elif d == "AC":
-            text = ""
+            text = "0"
         else:
             text = t + d
-        await m.edit(f"{text}\n\n{CALCULATE_TEXT}", reply_markup=CALCULATE_BUTTONS)
+        await m.edit(f"{text}", reply_markup=CALCULATE_BUTTONS)
     except:
         print(exc())
 
