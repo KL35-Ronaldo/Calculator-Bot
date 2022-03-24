@@ -88,7 +88,7 @@ async def cb_data(c: Client, q: CallbackQuery):
         elif d == "AC":
             text = "0"
         else:
-            text = t + d
+            text = str(t + d) if t[0] != 0 else d
         await m.edit(f"{text}", reply_markup=CALCULATE_BUTTONS)
     except:
         if "you tried to edit it using the same content" in exc():
